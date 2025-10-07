@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -21,18 +21,19 @@ impl carbon_core::deserialize::ArrangeAccounts for CloseClaimFeeOperator {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [claim_fee_operator, rent_receiver, admin, event_authority, program, _remaining @ ..] =
-            accounts
-        else {
-            return None;
-        };
+        let mut iter = accounts.iter();
+        let claim_fee_operator = next_account(&mut iter)?;
+        let rent_receiver = next_account(&mut iter)?;
+        let admin = next_account(&mut iter)?;
+        let event_authority = next_account(&mut iter)?;
+        let program = next_account(&mut iter)?;
 
         Some(CloseClaimFeeOperatorInstructionAccounts {
-            claim_fee_operator: claim_fee_operator.pubkey,
-            rent_receiver: rent_receiver.pubkey,
-            admin: admin.pubkey,
-            event_authority: event_authority.pubkey,
-            program: program.pubkey,
+            claim_fee_operator,
+            rent_receiver,
+            admin,
+            event_authority,
+            program,
         })
     }
 }

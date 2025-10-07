@@ -1,6 +1,6 @@
 use super::super::types::*;
 
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -40,33 +40,49 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializePool {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [creator, position_nft_mint, position_nft_account, payer, config, pool_authority, pool, position, token_a_mint, token_b_mint, token_a_vault, token_b_vault, payer_token_a, payer_token_b, token_a_program, token_b_program, token_2022_program, system_program, event_authority, program, _remaining @ ..] =
-            accounts
-        else {
-            return None;
-        };
+        let mut iter = accounts.iter();
+        let creator = next_account(&mut iter)?;
+        let position_nft_mint = next_account(&mut iter)?;
+        let position_nft_account = next_account(&mut iter)?;
+        let payer = next_account(&mut iter)?;
+        let config = next_account(&mut iter)?;
+        let pool_authority = next_account(&mut iter)?;
+        let pool = next_account(&mut iter)?;
+        let position = next_account(&mut iter)?;
+        let token_a_mint = next_account(&mut iter)?;
+        let token_b_mint = next_account(&mut iter)?;
+        let token_a_vault = next_account(&mut iter)?;
+        let token_b_vault = next_account(&mut iter)?;
+        let payer_token_a = next_account(&mut iter)?;
+        let payer_token_b = next_account(&mut iter)?;
+        let token_a_program = next_account(&mut iter)?;
+        let token_b_program = next_account(&mut iter)?;
+        let token_2022_program = next_account(&mut iter)?;
+        let system_program = next_account(&mut iter)?;
+        let event_authority = next_account(&mut iter)?;
+        let program = next_account(&mut iter)?;
 
         Some(InitializePoolInstructionAccounts {
-            creator: creator.pubkey,
-            position_nft_mint: position_nft_mint.pubkey,
-            position_nft_account: position_nft_account.pubkey,
-            payer: payer.pubkey,
-            config: config.pubkey,
-            pool_authority: pool_authority.pubkey,
-            pool: pool.pubkey,
-            position: position.pubkey,
-            token_a_mint: token_a_mint.pubkey,
-            token_b_mint: token_b_mint.pubkey,
-            token_a_vault: token_a_vault.pubkey,
-            token_b_vault: token_b_vault.pubkey,
-            payer_token_a: payer_token_a.pubkey,
-            payer_token_b: payer_token_b.pubkey,
-            token_a_program: token_a_program.pubkey,
-            token_b_program: token_b_program.pubkey,
-            token_2022_program: token_2022_program.pubkey,
-            system_program: system_program.pubkey,
-            event_authority: event_authority.pubkey,
-            program: program.pubkey,
+            creator,
+            position_nft_mint,
+            position_nft_account,
+            payer,
+            config,
+            pool_authority,
+            pool,
+            position,
+            token_a_mint,
+            token_b_mint,
+            token_a_vault,
+            token_b_vault,
+            payer_token_a,
+            payer_token_b,
+            token_a_program,
+            token_b_program,
+            token_2022_program,
+            system_program,
+            event_authority,
+            program,
         })
     }
 }

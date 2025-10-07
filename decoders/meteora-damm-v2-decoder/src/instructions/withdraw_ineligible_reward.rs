@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -27,22 +27,27 @@ impl carbon_core::deserialize::ArrangeAccounts for WithdrawIneligibleReward {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [pool_authority, pool, reward_vault, reward_mint, funder_token_account, funder, token_program, event_authority, program, _remaining @ ..] =
-            accounts
-        else {
-            return None;
-        };
+        let mut iter = accounts.iter();
+        let pool_authority = next_account(&mut iter)?;
+        let pool = next_account(&mut iter)?;
+        let reward_vault = next_account(&mut iter)?;
+        let reward_mint = next_account(&mut iter)?;
+        let funder_token_account = next_account(&mut iter)?;
+        let funder = next_account(&mut iter)?;
+        let token_program = next_account(&mut iter)?;
+        let event_authority = next_account(&mut iter)?;
+        let program = next_account(&mut iter)?;
 
         Some(WithdrawIneligibleRewardInstructionAccounts {
-            pool_authority: pool_authority.pubkey,
-            pool: pool.pubkey,
-            reward_vault: reward_vault.pubkey,
-            reward_mint: reward_mint.pubkey,
-            funder_token_account: funder_token_account.pubkey,
-            funder: funder.pubkey,
-            token_program: token_program.pubkey,
-            event_authority: event_authority.pubkey,
-            program: program.pubkey,
+            pool_authority,
+            pool,
+            reward_vault,
+            reward_mint,
+            funder_token_account,
+            funder,
+            token_program,
+            event_authority,
+            program,
         })
     }
 }

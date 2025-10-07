@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -22,19 +22,21 @@ impl carbon_core::deserialize::ArrangeAccounts for CreateTokenBadge {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [token_badge, token_mint, admin, system_program, event_authority, program, _remaining @ ..] =
-            accounts
-        else {
-            return None;
-        };
+        let mut iter = accounts.iter();
+        let token_badge = next_account(&mut iter)?;
+        let token_mint = next_account(&mut iter)?;
+        let admin = next_account(&mut iter)?;
+        let system_program = next_account(&mut iter)?;
+        let event_authority = next_account(&mut iter)?;
+        let program = next_account(&mut iter)?;
 
         Some(CreateTokenBadgeInstructionAccounts {
-            token_badge: token_badge.pubkey,
-            token_mint: token_mint.pubkey,
-            admin: admin.pubkey,
-            system_program: system_program.pubkey,
-            event_authority: event_authority.pubkey,
-            program: program.pubkey,
+            token_badge,
+            token_mint,
+            admin,
+            system_program,
+            event_authority,
+            program,
         })
     }
 }

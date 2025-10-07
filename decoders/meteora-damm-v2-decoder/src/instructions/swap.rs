@@ -1,6 +1,6 @@
 use super::super::types::*;
 
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -34,27 +34,37 @@ impl carbon_core::deserialize::ArrangeAccounts for Swap {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [pool_authority, pool, input_token_account, output_token_account, token_a_vault, token_b_vault, token_a_mint, token_b_mint, payer, token_a_program, token_b_program, referral_token_account, event_authority, program, _remaining @ ..] =
-            accounts
-        else {
-            return None;
-        };
+        let mut iter = accounts.iter();
+        let pool_authority = next_account(&mut iter)?;
+        let pool = next_account(&mut iter)?;
+        let input_token_account = next_account(&mut iter)?;
+        let output_token_account = next_account(&mut iter)?;
+        let token_a_vault = next_account(&mut iter)?;
+        let token_b_vault = next_account(&mut iter)?;
+        let token_a_mint = next_account(&mut iter)?;
+        let token_b_mint = next_account(&mut iter)?;
+        let payer = next_account(&mut iter)?;
+        let token_a_program = next_account(&mut iter)?;
+        let token_b_program = next_account(&mut iter)?;
+        let referral_token_account = next_account(&mut iter)?;
+        let event_authority = next_account(&mut iter)?;
+        let program = next_account(&mut iter)?;
 
         Some(SwapInstructionAccounts {
-            pool_authority: pool_authority.pubkey,
-            pool: pool.pubkey,
-            input_token_account: input_token_account.pubkey,
-            output_token_account: output_token_account.pubkey,
-            token_a_vault: token_a_vault.pubkey,
-            token_b_vault: token_b_vault.pubkey,
-            token_a_mint: token_a_mint.pubkey,
-            token_b_mint: token_b_mint.pubkey,
-            payer: payer.pubkey,
-            token_a_program: token_a_program.pubkey,
-            token_b_program: token_b_program.pubkey,
-            referral_token_account: referral_token_account.pubkey,
-            event_authority: event_authority.pubkey,
-            program: program.pubkey,
+            pool_authority,
+            pool,
+            input_token_account,
+            output_token_account,
+            token_a_vault,
+            token_b_vault,
+            token_a_mint,
+            token_b_mint,
+            payer,
+            token_a_program,
+            token_b_program,
+            referral_token_account,
+            event_authority,
+            program,
         })
     }
 }

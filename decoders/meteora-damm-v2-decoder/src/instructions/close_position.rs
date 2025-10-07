@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -26,23 +26,29 @@ impl carbon_core::deserialize::ArrangeAccounts for ClosePosition {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [position_nft_mint, position_nft_account, pool, position, pool_authority, rent_receiver, owner, token_program, event_authority, program, _remaining @ ..] =
-            accounts
-        else {
-            return None;
-        };
+        let mut iter = accounts.iter();
+        let position_nft_mint = next_account(&mut iter)?;
+        let position_nft_account = next_account(&mut iter)?;
+        let pool = next_account(&mut iter)?;
+        let position = next_account(&mut iter)?;
+        let pool_authority = next_account(&mut iter)?;
+        let rent_receiver = next_account(&mut iter)?;
+        let owner = next_account(&mut iter)?;
+        let token_program = next_account(&mut iter)?;
+        let event_authority = next_account(&mut iter)?;
+        let program = next_account(&mut iter)?;
 
         Some(ClosePositionInstructionAccounts {
-            position_nft_mint: position_nft_mint.pubkey,
-            position_nft_account: position_nft_account.pubkey,
-            pool: pool.pubkey,
-            position: position.pubkey,
-            pool_authority: pool_authority.pubkey,
-            rent_receiver: rent_receiver.pubkey,
-            owner: owner.pubkey,
-            token_program: token_program.pubkey,
-            event_authority: event_authority.pubkey,
-            program: program.pubkey,
+            position_nft_mint,
+            position_nft_account,
+            pool,
+            position,
+            pool_authority,
+            rent_receiver,
+            owner,
+            token_program,
+            event_authority,
+            program,
         })
     }
 }

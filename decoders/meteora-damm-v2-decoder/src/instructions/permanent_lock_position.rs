@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -24,19 +24,21 @@ impl carbon_core::deserialize::ArrangeAccounts for PermanentLockPosition {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [pool, position, position_nft_account, owner, event_authority, program, _remaining @ ..] =
-            accounts
-        else {
-            return None;
-        };
+        let mut iter = accounts.iter();
+        let pool = next_account(&mut iter)?;
+        let position = next_account(&mut iter)?;
+        let position_nft_account = next_account(&mut iter)?;
+        let owner = next_account(&mut iter)?;
+        let event_authority = next_account(&mut iter)?;
+        let program = next_account(&mut iter)?;
 
         Some(PermanentLockPositionInstructionAccounts {
-            pool: pool.pubkey,
-            position: position.pubkey,
-            position_nft_account: position_nft_account.pubkey,
-            owner: owner.pubkey,
-            event_authority: event_authority.pubkey,
-            program: program.pubkey,
+            pool,
+            position,
+            position_nft_account,
+            owner,
+            event_authority,
+            program,
         })
     }
 }

@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -6,6 +6,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[carbon(discriminator = "0x955fb5f25e5a9ea2")]
 pub struct ClaimReward {
     pub reward_index: u8,
+    pub skip_reward: u8,
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
@@ -29,24 +30,31 @@ impl carbon_core::deserialize::ArrangeAccounts for ClaimReward {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [pool_authority, pool, position, reward_vault, reward_mint, user_token_account, position_nft_account, owner, token_program, event_authority, program, _remaining @ ..] =
-            accounts
-        else {
-            return None;
-        };
+        let mut iter = accounts.iter();
+        let pool_authority = next_account(&mut iter)?;
+        let pool = next_account(&mut iter)?;
+        let position = next_account(&mut iter)?;
+        let reward_vault = next_account(&mut iter)?;
+        let reward_mint = next_account(&mut iter)?;
+        let user_token_account = next_account(&mut iter)?;
+        let position_nft_account = next_account(&mut iter)?;
+        let owner = next_account(&mut iter)?;
+        let token_program = next_account(&mut iter)?;
+        let event_authority = next_account(&mut iter)?;
+        let program = next_account(&mut iter)?;
 
         Some(ClaimRewardInstructionAccounts {
-            pool_authority: pool_authority.pubkey,
-            pool: pool.pubkey,
-            position: position.pubkey,
-            reward_vault: reward_vault.pubkey,
-            reward_mint: reward_mint.pubkey,
-            user_token_account: user_token_account.pubkey,
-            position_nft_account: position_nft_account.pubkey,
-            owner: owner.pubkey,
-            token_program: token_program.pubkey,
-            event_authority: event_authority.pubkey,
-            program: program.pubkey,
+            pool_authority,
+            pool,
+            position,
+            reward_vault,
+            reward_mint,
+            user_token_account,
+            position_nft_account,
+            owner,
+            token_program,
+            event_authority,
+            program,
         })
     }
 }
